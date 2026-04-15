@@ -8,24 +8,22 @@ class StudentApprovalScreen extends StatefulWidget {
   const StudentApprovalScreen({super.key});
 
   @override
-  State<StudentApprovalScreen> createState() =>
-      _StudentApprovalScreenState();
+  State<StudentApprovalScreen> createState() => _StudentApprovalScreenState();
 }
 
-class _StudentApprovalScreenState
-    extends State<StudentApprovalScreen>
+class _StudentApprovalScreenState extends State<StudentApprovalScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   // int get _pendingCount  => _pending.length;
   // int get _approvedCount => _approved.length;
 
-  List<UserModel> _pending  = [];
+  List<UserModel> _pending = [];
   List<UserModel> _approved = [];
   bool _loading = true;
 
   // Search and filter
   final _searchController = TextEditingController();
-  String _searchQuery    = '';
+  String _searchQuery = '';
   // String? _brancFilter;  // null = show all
   // bool _filterByBranch = true; // default: same branch as faculty
 
@@ -36,14 +34,17 @@ class _StudentApprovalScreenState
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {setState(() {});    });
+    _tabController.addListener(() {
+      setState(() {});
+    });
     // Default filter = faculty's own branch
     // _branchFilter = _facultyBranch;
     _loadStudents();
 
     _searchController.addListener(() {
-      setState(() => _searchQuery =
-          _searchController.text.trim().toLowerCase());
+      setState(
+        () => _searchQuery = _searchController.text.trim().toLowerCase(),
+      );
     });
   }
 
@@ -57,28 +58,28 @@ class _StudentApprovalScreenState
   Future<void> _loadStudents() async {
     setState(() => _loading = true);
     final currentUser = AuthService.currentUser;
-     final branch = currentUser?.role == 'admin' ? null: currentUser?.branch;
+    final branch = currentUser?.role == 'admin' ? null : currentUser?.branch;
     final results = await Future.wait([
-      StudentManagementService.getPendingStudents(branchFilter: branch ),
+      StudentManagementService.getPendingStudents(branchFilter: branch),
       StudentManagementService.getApprovedStudents(branchFilter: branch),
     ]);
     if (mounted) {
       setState(() {
-        _pending  = results[0]
+        _pending = results[0]
           ..sort((a, b) {
-            final first = a.firstName.toLowerCase()
-                .compareTo(b.firstName.toLowerCase());
+            final first = a.firstName.toLowerCase().compareTo(
+              b.firstName.toLowerCase(),
+            );
             if (first != 0) return first;
-            return a.lastName.toLowerCase()
-                .compareTo(b.lastName.toLowerCase());
+            return a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase());
           });
         _approved = results[1]
           ..sort((a, b) {
-            final first = a.firstName.toLowerCase()
-                .compareTo(b.firstName.toLowerCase());
+            final first = a.firstName.toLowerCase().compareTo(
+              b.firstName.toLowerCase(),
+            );
             if (first != 0) return first;
-            return a.lastName.toLowerCase()
-                .compareTo(b.lastName.toLowerCase());
+            return a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase());
           });
         _loading = false;
       });
@@ -112,10 +113,9 @@ class _StudentApprovalScreenState
 
   Future<void> _approve(UserModel student) async {
     final confirm = await _confirmDialog(
-      title:        'Approve Student',
-      message:
-          'Allow ${student.fullName} to login and access exercises?',
-      confirmText:  'Approve',
+      title: 'Approve Student',
+      message: 'Allow ${student.fullName} to login and access exercises?',
+      confirmText: 'Approve',
       confirmColor: Colors.green,
     );
     if (!confirm) return;
@@ -132,10 +132,9 @@ class _StudentApprovalScreenState
 
   Future<void> _reject(UserModel student) async {
     final confirm = await _confirmDialog(
-      title:        'Reject Student',
-      message:
-          'Reject ${student.fullName}? They will not be able to login.',
-      confirmText:  'Reject',
+      title: 'Reject Student',
+      message: 'Reject ${student.fullName}? They will not be able to login.',
+      confirmText: 'Reject',
       confirmColor: Colors.red,
     );
     if (!confirm) return;
@@ -152,16 +151,14 @@ class _StudentApprovalScreenState
 
   Future<void> _deactivate(UserModel student) async {
     final confirm = await _confirmDialog(
-      title:        'Deactivate Student',
-      message:
-          '${student.fullName} will lose access immediately.',
-      confirmText:  'Deactivate',
+      title: 'Deactivate Student',
+      message: '${student.fullName} will lose access immediately.',
+      confirmText: 'Deactivate',
       confirmColor: Colors.red,
     );
     if (!confirm) return;
     try {
-      await StudentManagementService.deactivateStudent(
-          student.uid);
+      await StudentManagementService.deactivateStudent(student.uid);
       if (mounted) {
         _showSnack('${student.firstName} deactivated.');
         _loadStudents();
@@ -175,19 +172,37 @@ class _StudentApprovalScreenState
     final confirm = await _confirmDialog(
       title: 'Activate Student',
       message: 'Restore access for ${student.fullName}?',
-      confirmText:  'Activate',
+      confirmText: 'Activate',
       confirmColor: Colors.green,
     );
     if (!confirm) return;
     try {
-      await StudentManagementService.activateStudent(
-          student.uid);
+      await StudentManagementService.activateStudent(student.uid);
       if (mounted) {
         _showSnack('${student.firstName} activated.');
         _loadStudents();
       }
     } catch (_) {
       if (mounted) _showSnack('Failed. Try again.');
+    }
+  }
+
+  // DELETE USER:
+  Future<void> _delete(UserModel student) async {
+    final confirm = await _confirmDialog(
+      title: 'Delete ${student.fullName}',
+      message: 'All progress will be permanently deleted and cannot be recovered. Contact Admin to clean and reuse this email.',
+      confirmText: 'Delete',
+      confirmColor: Colors.red.shade700,
+    );
+    if (!confirm) return;
+    try {
+      await StudentManagementService.deleteStudent(student.uid);
+      if (mounted) _showSnack('${student.firstName} deleted permanently.');
+    } catch (_) {
+      if (mounted) _showSnack('Failed to delete. Try again.');
+    } finally {
+      if (mounted) _loadStudents();
     }
   }
 
@@ -202,20 +217,26 @@ class _StudentApprovalScreenState
           builder: (_) => AlertDialog(
             backgroundColor: AppTheme.background,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
-            title: Text(title,
-                style: const TextStyle(
-                    color: AppTheme.navy,
-                    fontWeight: FontWeight.bold)),
-            content: Text(message,
-                style: const TextStyle(
-                    color: AppTheme.textSecondary)),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(
+                color: AppTheme.navy,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Text(
+              message,
+              style: const TextStyle(color: AppTheme.textSecondary),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel',
-                    style: TextStyle(
-                        color: AppTheme.textSecondary)),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppTheme.textSecondary),
+                ),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -223,7 +244,8 @@ class _StudentApprovalScreenState
                   backgroundColor: confirmColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: Text(confirmText),
               ),
@@ -239,15 +261,14 @@ class _StudentApprovalScreenState
         content: Text(message),
         backgroundColor: AppTheme.navy,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredPending  = _filtered(_pending);
+    final filteredPending = _filtered(_pending);
     final filteredApproved = _filtered(_approved);
 
     return Scaffold(
@@ -261,8 +282,7 @@ class _StudentApprovalScreenState
           preferredSize: const Size.fromHeight(49),
           child: Column(
             children: [
-              const Divider(
-                  height: 1, color: AppTheme.borderColor),
+              const Divider(height: 1, color: AppTheme.borderColor),
               TabBar(
                 controller: _tabController,
                 labelColor: AppTheme.navy,
@@ -307,67 +327,63 @@ class _StudentApprovalScreenState
       ),
       body: _loading
           ? const Center(
-              child: CircularProgressIndicator(
-                  color: AppTheme.accent))
+              child: CircularProgressIndicator(color: AppTheme.accent),
+            )
           : Column(
               children: [
                 // ── Search + Filter bar ───────────────────────
                 Container(
-                  padding: const EdgeInsets.fromLTRB(
-                      16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                   color: AppTheme.background,
                   child: Column(
                     children: [
                       // Search field
                       TextField(
                         controller: _searchController,
-                        style: const TextStyle(
-                            color: AppTheme.textPrimary),
+                        style: const TextStyle(color: AppTheme.textPrimary),
                         decoration: InputDecoration(
-                          hintText:
-                              _tabController.index == 0
+                          hintText: _tabController.index == 0
                               ? 'Search among ${_filtered(_pending).length} approvals'
                               : 'Search among ${_filtered(_approved).length} students',
                           hintStyle: const TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontSize: 13),
+                            color: AppTheme.textSecondary,
+                            fontSize: 13,
+                          ),
                           prefixIcon: const Icon(
-                              Icons.search,
-                              color: AppTheme.accent,
-                              size: 20),
-                          suffixIcon:
-                              _searchQuery.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(
-                                          Icons.clear,
-                                          size: 18,
-                                          color: AppTheme
-                                              .textSecondary),
-                                      onPressed: () {
-                                        _searchController
-                                            .clear();
-                                        setState(() =>
-                                            _searchQuery = '');
-                                      },
-                                    )
-                                  : null,
+                            Icons.search,
+                            color: AppTheme.accent,
+                            size: 20,
+                          ),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    size: 18,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
                           filled: true,
                           fillColor: AppTheme.cardBackground,
-                          contentPadding:
-                              const EdgeInsets.symmetric(
-                                  vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                                color: AppTheme.borderColor),
+                              color: AppTheme.borderColor,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                                color: AppTheme.accent,
-                                width: 2),
+                              color: AppTheme.accent,
+                              width: 2,
+                            ),
                           ),
                         ),
                       ),
@@ -491,8 +507,7 @@ class _StudentApprovalScreenState
                   ),
                 ),
 
-                const Divider(
-                    height: 1, color: AppTheme.borderColor),
+                const Divider(height: 1, color: AppTheme.borderColor),
 
                 // ── Tab content ───────────────────────────────
                 Expanded(
@@ -515,13 +530,14 @@ class _StudentApprovalScreenState
                               child: ListView.builder(
                                 padding: const EdgeInsets.all(16),
                                 itemCount: filteredPending.length,
-                                itemBuilder: (_, i) =>_StudentTile(
+                                itemBuilder: (_, i) => _StudentTile(
                                   student: filteredPending[i],
                                   isPending: true,
                                   onApprove: () => _approve(filteredPending[i]),
                                   onReject: () => _reject(filteredPending[i]),
                                   onActivate: () {}, // not used for pending
-
+                                  onDelete: () =>
+                                      _delete(filteredPending[i]), // ← ADD
                                 ),
                               ),
                             ),
@@ -543,13 +559,20 @@ class _StudentApprovalScreenState
                               child: ListView.builder(
                                 padding: const EdgeInsets.all(16),
                                 itemCount: filteredApproved.length,
-                                itemBuilder: (_, i) => _StudentTile(
-                                  student:    filteredApproved[i],
-                                  isPending:  false,
-                                  onApprove:  () {},
-                                  onReject:   () =>
-                                      _deactivate(filteredApproved[i]), onActivate: () => _activate(filteredApproved[i]),
-                                ),
+                                itemBuilder: (_, i) {
+                                  final student =
+                                      filteredApproved[i]; // ← capture student first
+                                  return _StudentTile(
+                                    student: student,
+                                    isPending: false,
+                                    onApprove: () {},
+                                    onReject: () => _deactivate(student),
+                                    onActivate: () => _activate(student),
+                                    onDelete: () => _delete(
+                                      student,
+                                    ), // ← now uses correct list
+                                  );
+                                },
                               ),
                             ),
                     ],
@@ -570,8 +593,7 @@ class _CountBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
@@ -592,8 +614,7 @@ class _CountBadge extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
-  const _EmptyState(
-      {required this.icon, required this.message});
+  const _EmptyState({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -603,10 +624,10 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(icon, size: 64, color: AppTheme.borderColor),
           const SizedBox(height: 16),
-          Text(message,
-              style: const TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 16)),
+          Text(
+            message,
+            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+          ),
         ],
       ),
     );
@@ -620,6 +641,7 @@ class _StudentTile extends StatelessWidget {
   final VoidCallback onApprove;
   final VoidCallback onReject;
   final VoidCallback onActivate; // ← new
+  final VoidCallback onDelete; // ← ADD for deleting students
 
   const _StudentTile({
     required this.student,
@@ -627,10 +649,10 @@ class _StudentTile extends StatelessWidget {
     required this.onApprove,
     required this.onReject,
     required this.onActivate, // ← new
+    required this.onDelete, // ← ADD
   });
 
-  String _formatDate(DateTime date) =>
-      '${date.day}/${date.month}/${date.year}';
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 
   @override
   Widget build(BuildContext context) {
@@ -640,14 +662,10 @@ class _StudentTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isActive
-            ? AppTheme.white
-            : Colors.grey.shade50,
+        color: isActive ? AppTheme.white : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isActive
-              ? AppTheme.borderColor
-              : Colors.grey.shade300,
+          color: isActive ? AppTheme.borderColor : Colors.grey.shade300,
         ),
       ),
       child: Column(
@@ -663,15 +681,15 @@ class _StudentTile extends StatelessWidget {
                   color: isPending
                       ? Colors.orange.shade50
                       : isActive
-                          ? Colors.green.shade50
-                          : Colors.grey.shade100,
+                      ? Colors.green.shade50
+                      : Colors.grey.shade100,
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isPending
                         ? Colors.orange.shade200
                         : isActive
-                            ? Colors.green.shade200
-                            : Colors.grey.shade300,
+                        ? Colors.green.shade200
+                        : Colors.grey.shade300,
                   ),
                 ),
                 child: Center(
@@ -683,8 +701,8 @@ class _StudentTile extends StatelessWidget {
                       color: isPending
                           ? Colors.orange.shade700
                           : isActive
-                              ? Colors.green.shade700
-                              : Colors.grey,
+                          ? Colors.green.shade700
+                          : Colors.grey,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -694,8 +712,7 @@ class _StudentTile extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -703,9 +720,7 @@ class _StudentTile extends StatelessWidget {
                           child: Text(
                             student.fullName,
                             style: TextStyle(
-                              color: isActive
-                                  ? AppTheme.navy
-                                  : Colors.grey,
+                              color: isActive ? AppTheme.navy : Colors.grey,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
@@ -714,16 +729,15 @@ class _StudentTile extends StatelessWidget {
                         // Active / Inactive badge
                         if (!isPending)
                           Container(
-                            padding:
-                                const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: isActive
                                   ? Colors.green.shade50
                                   : Colors.red.shade50,
-                              borderRadius:
-                                  BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: isActive
                                     ? Colors.green.shade200
@@ -731,9 +745,7 @@ class _StudentTile extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              isActive
-                                  ? 'Active'
-                                  : 'Inactive',
+                              isActive ? 'Active' : 'Inactive',
                               style: TextStyle(
                                 color: isActive
                                     ? Colors.green.shade700
@@ -749,24 +761,32 @@ class _StudentTile extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(
-                            Icons.location_city_outlined,
-                            size: 12,
-                            color: AppTheme.textSecondary),
+                          Icons.location_city_outlined,
+                          size: 12,
+                          color: AppTheme.textSecondary,
+                        ),
                         const SizedBox(width: 4),
-                        Text(student.branch,
-                            style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 12)),
+                        Text(
+                          student.branch,
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         const Icon(
-                            Icons.calendar_today_outlined,
-                            size: 12,
-                            color: AppTheme.textSecondary),
+                          Icons.calendar_today_outlined,
+                          size: 12,
+                          color: AppTheme.textSecondary,
+                        ),
                         const SizedBox(width: 4),
-                        Text(_formatDate(student.createdAt),
-                            style: const TextStyle(
-                                color: AppTheme.textSecondary,
-                                fontSize: 12)),
+                        Text(
+                          _formatDate(student.createdAt),
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -774,14 +794,15 @@ class _StudentTile extends StatelessWidget {
               ),
               // Profile button
               IconButton(
-                icon: const Icon(Icons.info_outline,
-                    color: AppTheme.accent, size: 20),
+                icon: const Icon(
+                  Icons.info_outline,
+                  color: AppTheme.accent,
+                  size: 20,
+                ),
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        _StudentProfileScreen(
-                            student: student),
+                    builder: (_) => _StudentProfileScreen(student: student),
                   ),
                 ),
               ),
@@ -802,8 +823,8 @@ class _StudentTile extends StatelessWidget {
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       elevation: 0,
                     ),
                   ),
@@ -816,11 +837,10 @@ class _StudentTile extends StatelessWidget {
                     label: const Text('Reject'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
-                      side: const BorderSide(
-                          color: Colors.red),
+                      side: const BorderSide(color: Colors.red),
                       shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
@@ -833,30 +853,61 @@ class _StudentTile extends StatelessWidget {
                     label: const Text('Deactivate'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
-                      side: BorderSide(
-                          color: Colors.red.shade200),
+                      side: BorderSide(color: Colors.red.shade200),
                       shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8), // ← ADD
+                // Delete button — shown next to Deactivate
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline, size: 16),
+                    label: const Text('Delete'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red.shade700,
+                      side: BorderSide(color: Colors.red.shade400),
+                      backgroundColor: Colors.red.shade50,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
               ] else ...[
-                // Inactive — show activate button
+                // Inactive — show activate + delete buttons
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: onActivate,
-                    icon: const Icon(
-                        Icons.check_circle_outline,
-                        size: 16),
+                    icon: const Icon(Icons.check_circle_outline, size: 16),
                     label: const Text('Activate'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.accent,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8), // ← ADD
+                // Delete button — shown next to Activate
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline, size: 16),
+                    label: const Text('Delete'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red.shade700,
+                      side: BorderSide(color: Colors.red.shade400),
+                      backgroundColor: Colors.red.shade50,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
@@ -874,8 +925,7 @@ class _StudentProfileScreen extends StatelessWidget {
   final UserModel student;
   const _StudentProfileScreen({required this.student});
 
-  String _formatDate(DateTime date) =>
-      '${date.day}/${date.month}/${date.year}';
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 
   @override
   Widget build(BuildContext context) {
@@ -888,8 +938,7 @@ class _StudentProfileScreen extends StatelessWidget {
         elevation: 0,
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
-          child:
-              Divider(height: 1, color: AppTheme.borderColor),
+          child: Divider(height: 1, color: AppTheme.borderColor),
         ),
       ),
       body: SingleChildScrollView(
@@ -904,8 +953,9 @@ class _StudentProfileScreen extends StatelessWidget {
                 color: AppTheme.accent.withOpacity(0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: AppTheme.accent.withOpacity(0.3),
-                    width: 2),
+                  color: AppTheme.accent.withOpacity(0.3),
+                  width: 2,
+                ),
               ),
               child: Center(
                 child: Text(
@@ -931,13 +981,11 @@ class _StudentProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: AppTheme.accent.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: AppTheme.accent.withOpacity(0.3)),
+                border: Border.all(color: AppTheme.accent.withOpacity(0.3)),
               ),
               child: const Text(
                 'Student',
@@ -952,50 +1000,55 @@ class _StudentProfileScreen extends StatelessWidget {
 
             // Details
             _ProfileField(
-                icon: Icons.email_outlined,
-                label: 'Email',
-                value: student.email),
+              icon: Icons.email_outlined,
+              label: 'Email',
+              value: student.email,
+            ),
             _ProfileField(
-                icon: Icons.phone_outlined,
-                label: 'Phone',
-                value: student.phone),
+              icon: Icons.phone_outlined,
+              label: 'Phone',
+              value: student.phone,
+            ),
             _ProfileField(
-                icon: Icons.location_city_outlined,
-                label: 'Branch',
-                value: student.branch),
+              icon: Icons.location_city_outlined,
+              label: 'Branch',
+              value: student.branch,
+            ),
             _ProfileField(
-                icon: Icons.location_on_outlined,
-                label: 'City',
-                value: student.city),
+              icon: Icons.location_on_outlined,
+              label: 'City',
+              value: student.city,
+            ),
             _ProfileField(
-                icon: Icons.markunread_mailbox_outlined,
-                label: 'ZIP Code',
-                value: student.zipCode),
+              icon: Icons.markunread_mailbox_outlined,
+              label: 'ZIP Code',
+              value: student.zipCode,
+            ),
             if (student.addressLine1 != null &&
                 student.addressLine1!.isNotEmpty)
               _ProfileField(
-                  icon: Icons.home_outlined,
-                  label: 'Address Line 1',
-                  value: student.addressLine1!),
+                icon: Icons.home_outlined,
+                label: 'Address Line 1',
+                value: student.addressLine1!,
+              ),
             if (student.addressLine2 != null &&
                 student.addressLine2!.isNotEmpty)
               _ProfileField(
-                  icon: Icons.home_outlined,
-                  label: 'Address Line 2',
-                  value: student.addressLine2!),
+                icon: Icons.home_outlined,
+                label: 'Address Line 2',
+                value: student.addressLine2!,
+              ),
             _ProfileField(
-                icon: Icons.calendar_today_outlined,
-                label: 'Registered On',
-                value: _formatDate(student.createdAt)),
+              icon: Icons.calendar_today_outlined,
+              label: 'Registered On',
+              value: _formatDate(student.createdAt),
+            ),
             _ProfileField(
-                icon: Icons.verified_user_outlined,
-                label: 'Status',
-                value: student.isApproved
-                    ? 'Approved'
-                    : 'Pending Approval',
-                valueColor: student.isApproved
-                    ? Colors.green
-                    : Colors.orange),
+              icon: Icons.verified_user_outlined,
+              label: 'Status',
+              value: student.isApproved ? 'Approved' : 'Pending Approval',
+              valueColor: student.isApproved ? Colors.green : Colors.orange,
+            ),
           ],
         ),
       ),

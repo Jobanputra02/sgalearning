@@ -154,6 +154,23 @@ class AuthService {
     _currentUser = null;
     await _auth.signOut();
   }
+    // ─── Forgot Password ──────────────────────────────────────────
+  static Future<void> sendPasswordResetEmail(String email) async {
+    await _auth.sendPasswordResetEmail(email: email.trim().toLowerCase());
+  }
+  // ─── Check if email is registered ────────────────────────────
+  // static Future<bool> isEmailRegistered(String email) async {
+  //   try {
+  //     final query = await _db
+  //         .collection('users')
+  //         .where('email', isEqualTo: email.trim().toLowerCase())
+  //         .limit(1)
+  //         .get();
+  //     return query.docs.isNotEmpty;
+  //   } catch (_) {
+  //     return false;
+  //   }
+  // }
 
   // ─── Fetch user profile ───────────────────────────────────────
   static Future<UserModel?> _fetchUserProfile(String uid) async {

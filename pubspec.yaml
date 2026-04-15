@@ -15,7 +15,7 @@ dependencies:
   # flutter_native_splash: ^2.4.1
   audio_session: ^0.1.21
   # added for Firebase integration--
-  firebase_core: ^4.5.0 
+  firebase_core: ^4.5.0
   firebase_auth: ^6.2.0
   cloud_firestore: ^6.1.3
   #-- added for Firebase integration
