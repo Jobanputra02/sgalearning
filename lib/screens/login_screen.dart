@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import 'dashboard_screen.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
+import '../utils/responsive.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -57,17 +58,17 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
+              SizedBox(height: context.rs(60)),
               Image.asset('assets/images/sga.png',
-                  height: 110, fit: BoxFit.contain),
-              const SizedBox(height: 20),
-              const Text('SGA Learning',
+                  height: context.rsc(110, min: 80, max: 130), fit: BoxFit.contain),
+              SizedBox(height: context.rs(20)),
+              Text('SGA Learning',
                   style: TextStyle(
-                      fontSize: 26,
+                      fontSize: context.rsc(26, min: 20, max: 30),
                       fontWeight: FontWeight.bold,
                       color: AppTheme.navy)),
               const SizedBox(height: 6),
@@ -75,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                       fontSize: 14,
                       color: AppTheme.textSecondary)),
-              const SizedBox(height: 40),
+              SizedBox(height: context.rs(40)),
 
               // Email
               TextField(
@@ -170,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // Login button
               SizedBox(
                 width: double.infinity,
-                height: 54,
+                height: context.rsc(54, min: 48),
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
@@ -210,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: context.rs(30)),
               // Sign up link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

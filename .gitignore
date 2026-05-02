@@ -54,3 +54,6 @@ web
 windows/
 .metadata
 devtools_options.yaml
+.claude
+privacy_policy.html
+delete-account.html

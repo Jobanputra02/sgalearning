@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
+import '../utils/responsive.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -73,7 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+          padding: EdgeInsets.symmetric(horizontal: context.hPad),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             transitionBuilder: (child, animation) => FadeTransition(
@@ -101,11 +102,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         key: const ValueKey('form'),
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 48),
+          SizedBox(height: context.rs(48)),
 
           Container(
-            width: 80,
-            height: 80,
+            width: context.rsc(80, min: 64, max: 96),
+            height: context.rsc(80, min: 64, max: 96),
             decoration: BoxDecoration(
               color: AppTheme.accent.withOpacity(0.1),
               shape: BoxShape.circle,
@@ -114,18 +115,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 width: 2,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.lock_reset_outlined,
               color: AppTheme.accent,
-              size: 36,
+              size: context.rsc(36, min: 28, max: 44),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: context.rs(24)),
 
-          const Text(
+          Text(
             'Forgot your password?',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: context.rsc(22, min: 18, max: 26),
               fontWeight: FontWeight.bold,
               color: AppTheme.navy,
             ),
@@ -141,7 +142,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: context.rs(40)),
 
           // Email field
           TextFormField(
@@ -222,7 +223,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           // Send button
           SizedBox(
             width: double.infinity,
-            height: 54,
+            height: context.rsc(54, min: 48),
             child: ElevatedButton(
               onPressed: _isLoading ? null : _sendResetEmail,
               style: ElevatedButton.styleFrom(
@@ -288,29 +289,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       key: const ValueKey('success'),
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 80),
+        SizedBox(height: context.rs(80)),
 
         // Success icon
         Container(
-          width: 90,
-          height: 90,
+          width: context.rsc(90, min: 72, max: 108),
+          height: context.rsc(90, min: 72, max: 108),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.green.withOpacity(0.1),
             border: Border.all(color: Colors.green, width: 2),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.mark_email_read_outlined,
             color: Colors.green,
-            size: 40,
+            size: context.rsc(40, min: 32, max: 48),
           ),
         ),
-        const SizedBox(height: 28),
+        SizedBox(height: context.rs(28)),
 
-        const Text(
+        Text(
           'Check your inbox!',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: context.rsc(24, min: 20, max: 28),
             fontWeight: FontWeight.bold,
             color: AppTheme.navy,
           ),
@@ -408,7 +409,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         // Back to login
         SizedBox(
           width: double.infinity,
-          height: 54,
+          height: context.rsc(54, min: 48),
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(

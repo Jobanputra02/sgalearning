@@ -8,6 +8,7 @@ import '../../models/progress_models.dart';
 import '../../services/progress_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/exercise_access_service.dart';
+import '../../utils/responsive.dart';
 
 class NoteExerciseScreen extends StatefulWidget {
   final NoteExerciseConfig config;
@@ -552,7 +553,7 @@ void _showResultDialog({
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              padding: EdgeInsets.fromLTRB(context.hPad, context.rs(12), context.hPad, 0),
               child: Column(
                 children: [
                   // Progress + Timer
@@ -610,12 +611,12 @@ void _showResultDialog({
                   //   ),
                   // ],
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: context.rs(14)),
 
                   // Question card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(context.rsc(20, min: 14, max: 26)),
                     decoration: const BoxDecoration(
                       color: AppTheme.cardBackground,
                       borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -634,12 +635,12 @@ void _showResultDialog({
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: context.rs(16)),
                         GestureDetector(
                           onTap: _isPlaying ? null : _onReplay,
                           child: Container(
-                            width: 80,
-                            height: 80,
+                            width: context.rsc(76, min: 64, max: 92),
+                            height: context.rsc(76, min: 64, max: 92),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: _isPlaying
@@ -660,7 +661,7 @@ void _showResultDialog({
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: context.rs(8)),
                         Text(
                           _isPlaying ? 'Playing...' : 'Tap to replay',
                           style: const TextStyle(
@@ -671,7 +672,7 @@ void _showResultDialog({
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: context.rs(8)),
                 ],
               ),
             ),
@@ -699,7 +700,7 @@ void _showResultDialog({
 
             // Bottom buttons
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              padding: EdgeInsets.fromLTRB(context.hPad, context.rs(8), context.hPad, context.rs(16)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

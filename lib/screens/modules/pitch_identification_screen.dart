@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import 'pitch_exercise_screen.dart';
 import '../../services/best_score_service.dart';
+import '../../utils/responsive.dart';
 
 class PitchIdentificationScreen extends StatefulWidget {
   const PitchIdentificationScreen({super.key});
@@ -184,8 +185,8 @@ class _PitchIdentificationScreenState
           child: CircularProgressIndicator(
               color: AppTheme.accent))
           : ListView(
-        padding: const EdgeInsets.symmetric(
-            vertical: 16, horizontal: 16),
+        padding: EdgeInsets.symmetric(
+            vertical: 16, horizontal: context.hPad),
         children: _buildSections(),
       ),
     );

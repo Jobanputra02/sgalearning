@@ -5,8 +5,9 @@ import '../../services/note_exercise_data.dart';
 import '../../services/note_exam_status_service.dart';
 import '../../services/exercise_access_service.dart';
 import '../../services/auth_service.dart';
-import '../../services/best_score_service.dart'; 
+import '../../services/best_score_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'note_exercise_screen.dart';
 
 class NoteIdentificationScreen extends StatefulWidget {
@@ -93,8 +94,8 @@ class _NoteIdentificationScreenState
               child: CircularProgressIndicator(
                   color: AppTheme.accent))
           : ListView.builder(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 16, horizontal: 16),
+              padding: EdgeInsets.symmetric(
+                  vertical: 16, horizontal: context.hPad),
               itemCount: exercises.length,
               itemBuilder: (context, index) {
                 final ex = exercises[index];

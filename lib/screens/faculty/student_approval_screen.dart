@@ -3,6 +3,7 @@ import '../../models/user_model.dart';
 import '../../services/student_management_service.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../../utils/responsive.dart';
 
 class StudentApprovalScreen extends StatefulWidget {
   const StudentApprovalScreen({super.key});
@@ -333,7 +334,7 @@ class _StudentApprovalScreenState extends State<StudentApprovalScreen>
               children: [
                 // ── Search + Filter bar ───────────────────────
                 Container(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: EdgeInsets.fromLTRB(context.hPad, 12, context.hPad, 8),
                   color: AppTheme.background,
                   child: Column(
                     children: [
@@ -528,7 +529,7 @@ class _StudentApprovalScreenState extends State<StudentApprovalScreen>
                               onRefresh: _loadStudents,
                               color: AppTheme.accent,
                               child: ListView.builder(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
                                 itemCount: filteredPending.length,
                                 itemBuilder: (_, i) => _StudentTile(
                                   student: filteredPending[i],
@@ -557,7 +558,7 @@ class _StudentApprovalScreenState extends State<StudentApprovalScreen>
                               onRefresh: _loadStudents,
                               color: AppTheme.accent,
                               child: ListView.builder(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
                                 itemCount: filteredApproved.length,
                                 itemBuilder: (_, i) {
                                   final student =
@@ -942,7 +943,7 @@ class _StudentProfileScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: context.rs(24)),
         child: Column(
           children: [
             // Avatar

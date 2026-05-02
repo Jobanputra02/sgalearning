@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -13,6 +14,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   await Firebase.initializeApp();
   runApp(const SGALearningApp());
 }
@@ -98,6 +100,11 @@ class _SGALearningAppState extends State<SGALearningApp>
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       home: const AuthGate(),
+      builder: (context, child) => SafeArea(
+        top: false,
+        bottom: true,
+        child: child!,
+      ),
     );
   }
 }

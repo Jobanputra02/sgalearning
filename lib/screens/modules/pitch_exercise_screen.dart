@@ -8,6 +8,7 @@ import '../../services/auth_service.dart';
 import '../../services/progress_service.dart';
 import '../../services/pitch_question_generator.dart';
 import '../../services/exercise_access_service.dart';
+import '../../utils/responsive.dart';
 
 class PitchExerciseScreen extends StatefulWidget {
   final ExerciseConfig config;
@@ -602,8 +603,8 @@ void _showResultDialog({
             child: Divider(height: 1, color: AppTheme.borderColor),
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(24.0),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(context.hPad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -661,12 +662,12 @@ void _showResultDialog({
               //       ),
               //     ),
               //   ),
-              const SizedBox(height: 20),
+              SizedBox(height: context.rs(20)),
 
               // Question card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(28),
+                padding: EdgeInsets.all(context.rsc(24, min: 16, max: 32)),
                 decoration: const BoxDecoration(
                   color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -685,12 +686,12 @@ void _showResultDialog({
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: context.rs(20)),
                     GestureDetector(
                       onTap: _isPlaying ? null : _onReplay,
                       child: Container(
-                        width: 80,
-                        height: 80,
+                        width: context.rsc(76, min: 64, max: 92),
+                        height: context.rsc(76, min: 64, max: 92),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
@@ -710,7 +711,7 @@ void _showResultDialog({
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: context.rs(10)),
                     Text(
                       _isPlaying ? 'Playing...' : 'Tap to replay',
                       style: const TextStyle(
@@ -721,7 +722,7 @@ void _showResultDialog({
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: context.rs(28)),
 
               // Answer buttons
               Row(
@@ -790,9 +791,9 @@ void _showResultDialog({
                 }).toList(),
               ),
 
-              const Spacer(),
+              SizedBox(height: context.rs(24)),
 
-              // Bottom buttons — fixed at bottom
+              // Bottom buttons
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

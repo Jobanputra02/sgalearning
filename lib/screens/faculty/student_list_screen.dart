@@ -4,6 +4,7 @@ import '../../services/auth_service.dart';
 import '../../services/student_management_service.dart';
 import '../../services/student_analytics_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 import 'student_profile_screen.dart';
 
 class StudentListScreen extends StatefulWidget {
@@ -142,8 +143,8 @@ class _StudentListScreenState
               children: [
                 // Search bar
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      16, 12, 16, 8),
+                  padding: EdgeInsets.fromLTRB(
+                      context.hPad, 12, context.hPad, 8),
                   child: TextField(
                     controller: _searchController,
                     style: const TextStyle(
@@ -272,8 +273,8 @@ class _StudentListScreenState
                           onRefresh: _loadStudents,
                           color: AppTheme.accent,
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(
-                                16),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: context.hPad, vertical: 16),
                             itemCount: _filtered.length,
                             itemBuilder: (_, i) {
                               final a = _filtered[i];

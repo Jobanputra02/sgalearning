@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
+import '../utils/responsive.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -258,8 +259,8 @@ class _SignupScreenState extends State<SignupScreen> {
         key: _formKey,
         child: ListView(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(
-              horizontal: 24, vertical: 20),
+          padding: EdgeInsets.symmetric(
+              horizontal: context.hPad, vertical: context.rs(20)),
           children: [
             // ── Personal Info ────────────────────────────────────
             _sectionHeader('Personal Information'),
@@ -511,7 +512,7 @@ class _SignupScreenState extends State<SignupScreen> {
             // Sign Up button
             SizedBox(
               width: double.infinity,
-              height: 54,
+              height: context.rsc(54, min: 48),
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _signUp,
                 style: ElevatedButton.styleFrom(

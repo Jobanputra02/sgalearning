@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/responsive.dart';
 import '../services/auth_service.dart';
 import '../services/module_progress_service.dart';
 import 'faculty/student_list_screen.dart';
@@ -244,70 +245,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: context.hPad),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 28),
+            SizedBox(height: context.rs(28)),
             Text(
               'Hello, ${widget.user.firstName} 👋',
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppTheme.navy,
-                fontSize: 26,
+                fontSize: context.rsc(26, min: 20, max: 30),
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Ready to train your ear today?',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: context.rsc(14, min: 12, max: 16),
+              ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: context.rs(20)),
             const Divider(color: AppTheme.borderColor, thickness: 1),
-            const SizedBox(height: 20),
-            const Text(
+            SizedBox(height: context.rs(20)),
+            Text(
               'Ear Training',
               style: TextStyle(
                 color: AppTheme.navy,
-                fontSize: 16,
+                fontSize: context.rsc(16, min: 13, max: 18),
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.0,
-                ),
-                itemCount: modules.length,
-                itemBuilder: (context, index) {
-                  final module = modules[index];
-                  final moduleKey = module['moduleKey'] as String;
-                  return _ModuleCard(
-                    title: module['title'] as String,
-                    emoji: module['emoji'] as String,
-                    gradient: module['gradient'] as List<Color>,
-                    role: widget.user.role,
-                    progress: _progressFor(moduleKey),
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => module['screen'] as Widget,
-                        ),
-                      );
-                      // Refresh progress when returning
-                      _loadProgress();
-                    },
-                  );
-                },
-              ),
+            SizedBox(height: context.rs(16)),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final cardSize = (constraints.maxWidth - 16) / 2;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: cardSize,
+                  ),
+                  itemCount: modules.length,
+                  itemBuilder: (context, index) {
+                    final module = modules[index];
+                    final moduleKey = module['moduleKey'] as String;
+                    return _ModuleCard(
+                      title: module['title'] as String,
+                      emoji: module['emoji'] as String,
+                      gradient: module['gradient'] as List<Color>,
+                      role: widget.user.role,
+                      progress: _progressFor(moduleKey),
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => module['screen'] as Widget,
+                          ),
+                        );
+                        _loadProgress();
+                      },
+                    );
+                  },
+                );
+              },
             ),
             if (widget.user.role == 'student' && _myAnalytics != null) ...[
               const SizedBox(height: 16),
@@ -370,9 +377,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ],
-            // After the GridView Expanded widget, add:
             const SizedBox(height: 16),
-            // Students card — faculty and admin only
             if (widget.user.role == 'faculty' || widget.user.role == 'admin')
               _StudentsCard(user: widget.user),
             const SizedBox(height: 16),
@@ -420,7 +425,7 @@ class _ModuleCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: AppTheme.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.cardRadius),
           border: Border.all(color: AppTheme.borderColor, width: 1.5),
           boxShadow: const [
             BoxShadow(
@@ -430,81 +435,96 @@ class _ModuleCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Center(
-                  child: Text(emoji, style: const TextStyle(fontSize: 24)),
-                ),
-              ),
-              Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final h = constraints.maxHeight;
+            final pad = (h * 0.115).clamp(10.0, 18.0);
+            final iconSize = (h * 0.37).clamp(32.0, 52.0);
+            final titleFs = (h * 0.093).clamp(11.0, 15.0);
+            final subFs = (h * 0.07).clamp(9.0, 11.0);
+
+            return Padding(
+              padding: EdgeInsets.all(pad),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: AppTheme.navy,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      height: 1.3,
+                  Container(
+                    width: iconSize,
+                    height: iconSize,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: gradient,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(iconSize * 0.28),
+                    ),
+                    child: Center(
+                      child: Text(
+                        emoji,
+                        style: TextStyle(fontSize: iconSize * 0.5),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (role == 'student') ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        backgroundColor: AppTheme.borderColor,
-                        valueColor: AlwaysStoppedAnimation<Color>(gradient[0]),
-                        minHeight: 5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$pct% complete',
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                  if (role != 'student')
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: gradient[0].withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: gradient[0].withOpacity(0.3)),
-                      ),
-                      child: Text(
-                        'Full Access',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
                         style: TextStyle(
-                          color: gradient[0],
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                          color: AppTheme.navy,
+                          fontSize: titleFs,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3,
                         ),
                       ),
-                    ),
+                      SizedBox(height: h * 0.04),
+                      if (role == 'student') ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: AppTheme.borderColor,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(gradient[0]),
+                            minHeight: 4,
+                          ),
+                        ),
+                        SizedBox(height: h * 0.02),
+                        Text(
+                          '$pct% complete',
+                          style: TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: subFs,
+                          ),
+                        ),
+                      ],
+                      if (role != 'student')
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: gradient[0].withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                            border:
+                                Border.all(color: gradient[0].withOpacity(0.3)),
+                          ),
+                          child: Text(
+                            'Full Access',
+                            style: TextStyle(
+                              color: gradient[0],
+                              fontSize: subFs,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

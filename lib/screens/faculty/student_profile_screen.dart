@@ -7,6 +7,7 @@ import '../../services/student_analytics_service.dart';
 import '../../services/exercise_access_service.dart';
 import '../../services/local_db_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/responsive.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final StudentAnalytics analytics;
@@ -120,7 +121,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               color: AppTheme.accent,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(horizontal: context.hPad, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
